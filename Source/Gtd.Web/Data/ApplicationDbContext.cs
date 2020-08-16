@@ -12,5 +12,20 @@ namespace Gtd.Web.Data
             : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            // Tasks
+            builder.Entity<Models.TaskModel>().ToTable("Tasks");
+            builder.Entity<Models.TaskModel>().HasKey(t => t.Id);
+            builder.Entity<Models.TaskModel>().Property(t => t.Created).IsRequired();
+            builder.Entity<Models.TaskModel>().Property(t => t.Updated).IsRequired();
+            builder.Entity<Models.TaskModel>().Property(t => t.Title).IsRequired();            
+            builder.Entity<Models.TaskModel>().Property(t => t.UserId).IsRequired();
+        }
+
+        public DbSet<Models.TaskModel> Tasks { get; set; }
     }
 }
