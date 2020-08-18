@@ -1,0 +1,18 @@
+[Unit]
+Description=GTD by John Moore
+
+[Service]
+WorkingDirectory=/var/www/gtd
+ExecStart=/var/www/gtd/Gtd.Web
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=gtd
+User=www-data
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+Environment=Authentication__Microsoft__ClientSecret=ENTER_SECRET_HERE
+Environment=Authentication__Microsoft__ClientId=ENTER_ID_HERE
+
+[Install]
+WantedBy=multi-user.target
