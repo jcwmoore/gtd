@@ -10,49 +10,47 @@
     <a asp-action="Create">Create New</a>
 </p>
 <div class="card">
+    this is where you quick addd a new task
+</div>
+<div class="card">
     <table class="table table-striped">
         <thead>
             <tr>
+                <th></th>
                 <th>
                     @Html.DisplayNameFor(model => model.Title)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.CompletionStatus)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Important)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Urgent)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.DueDate)
                 </th>
-                <th></th>
             </tr>
+            
         </thead>
         <tbody>
     @foreach (var item in Model) {
             <tr>
                 <td>
+                    <a href="#" id="menu-toggle-@item.Id" data-toggle="dropdown" aria-expanded="false">
+                        <i class="mdi mdi-dots-vertical"></i>
+                    </a>
+                    <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
+                        <div class="dropdown-divider"></div>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a>
+                        <div class="dropdown-divider"></div>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Details</a>
+                        <div class="dropdown-divider"></div>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="dropdown-item">Delete</a>
+                    </div>
+                </td>
+                <td>
+                    @if(item.Important) { <span>❗</span>  } else { <span>&#160;&#160;</span> } 
+                    @if(item.Important) { <span>🌟</span>  } else { <span>&#160;&#160;&#160;</span> }
                     @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CompletionStatus)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Important)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Urgent)
+                    
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DueDate)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
     }
@@ -60,3 +58,12 @@
     </table>
 </div>
 
+@section Scripts{
+    <script type="text/javascript">
+        function taskContextMenu(menuId)
+        {
+            alert("here");
+            return false;
+        }
+    </script>
+}
