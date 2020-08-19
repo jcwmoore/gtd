@@ -12,6 +12,7 @@
 *.db
 id_rsa
 deploy_key
+package.tgz
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

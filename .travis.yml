@@ -11,8 +11,8 @@ script:
 - dotnet test
 after_success:
 - dotnet publish --runtime linux-x64 --configuration Release
-before_deploy:
 - tar -czf package.tgz -C ./Source/Gtd.Web/bin/Release/netcoreapp3.1/linux-x64/publish .
+before_deploy:
 - chmod 600 ./deploy_key && mv deploy_key ~/.ssh/id_rsa
 deploy:
 - provider: script
@@ -21,4 +21,5 @@ deploy:
     branch: master
 after_deploy:
 - rm ~/.ssh/id_rsa
-
+- rm package.tgz
+- rm -r ./Source/Gtd.Web/bin/Release/netcoreapp3.1/linux-x64/publish
