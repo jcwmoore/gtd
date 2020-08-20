@@ -1,10 +1,10 @@
 @model IEnumerable<Gtd.Web.Models.TaskModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tasks";
 }
 
-<h1>Index</h1>
+<h1>Tasks</h1>
 
 <div class="card">
     <a href="#" id="quick-create-toggle" data-toggle="dropdown" arai-expanded="false">Create new</a>
@@ -38,10 +38,10 @@
             <tr>
                 <th></th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Title)
+                    <a asp-action="Index">Title</a>
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.DueDate)
+                    <a asp-action="DueDate">DueDate</a>
                 </th>
             </tr>
             

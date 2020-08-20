@@ -30,8 +30,26 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            var applicationDbContext = _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != TaskCompletionStatus.Completed);
-            return View(await applicationDbContext.ToListAsync());
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != TaskCompletionStatus.Completed).ToListAsync();
+            data = data.OrderByDescending(t => t.Urgent)
+                       .ThenByDescending(t => t.Important)
+                       .ThenBy(t => t.DueDate)
+                       .ToList();
+            return View(data);
+        }
+
+        [HttpGet]
+        [Route("/Tasks/DueDate")]
+        public async Task<IActionResult> DueDate()
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == this.ControllerContext.HttpContext.User.Identity.Name);
+            if(user == null)
+            {
+                return NotFound();
+            }
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != TaskCompletionStatus.Completed).ToListAsync();
+            data = data.OrderBy(t => t.DueDate).ToList();
+            return View("Index", data);
         }
 
         // GET: TaskModel/Details/5
