@@ -6,14 +6,34 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <div class="card">
-    this is where you quick addd a new task
+    <a href="#" id="quick-create-toggle" data-toggle="dropdown" arai-expanded="false">Create new</a>
+    <form class="dropdown-menu p-4" asp-action="Create" aria-labelledby="quick-create-toggle">
+        <div class="form-group">
+            <label for="Title">Title</label>
+            <input type="text" class="form-control" name="Title" placeholder="..." required="required" />
+        </div>
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" name="Important" value="true"/>
+            <label class="form-check-label" for="Important">
+            Important
+            </label>
+        </div>
+        <div class="group form-check">
+            <input type="checkbox" class="form-check-input" name="Urgent" value="true"/>
+            <label class="form-check-label" for="Urgent">
+            Urgent
+            </label>
+        </div>
+        <input type="hidden" name="CompletionStatus" value="0" />
+        <input type="hidden" name="DueDate" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
 </div>
-<div class="card">
-    <table class="table table-striped">
+
+<br />
+<div class="card" style="overflow-x: auto">
+    <table class="table table-striped" >
         <thead>
             <tr>
                 <th></th>
@@ -34,7 +54,7 @@
                         <i class="mdi mdi-dots-vertical"></i>
                     </a>
                     <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
+                        <a asp-action="Complete" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
                         <div class="dropdown-divider"></div>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a>
                         <div class="dropdown-divider"></div>
@@ -44,7 +64,7 @@
                     </div>
                 </td>
                 <td>
-                    @if(item.Important) { <span>❗</span>  } else { <span>&#160;&#160;</span> } 
+                    @if(item.Urgent) { <span>❗</span>  } else { <span>&#160;&#160;</span> } 
                     @if(item.Important) { <span>🌟</span>  } else { <span>&#160;&#160;&#160;</span> }
                     @Html.DisplayFor(modelItem => item.Title)
                     
@@ -60,10 +80,8 @@
 
 @section Scripts{
     <script type="text/javascript">
-        function taskContextMenu(menuId)
-        {
-            alert("here");
-            return false;
-        }
+        $.ready(function() {
+
+        });
     </script>
 }

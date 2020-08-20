@@ -4,6 +4,10 @@
         {
             "label": "build",
             "command": "dotnet",
+            "group":{
+                "kind": "build",
+                "isDefault": true
+            },
             "type": "process",
             "args": [
                 "build",
@@ -35,6 +39,19 @@
                 "${workspaceFolder}/Source/Gtd.Web/Gtd.Web.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "group":{
+                "kind": "test",
+                "isDefault": true
+            },
+            "type": "process",
+            "args": [
+                "test"
             ],
             "problemMatcher": "$msCompile"
         }
