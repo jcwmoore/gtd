@@ -33,7 +33,7 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)TaskCompletionStatus.Completed).ToListAsync();
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)CompletionStatus.Completed).ToListAsync();
             data = data.OrderByDescending(t => t.Urgent)
                        .ThenByDescending(t => t.Important)
                        .ThenBy(t => t.DueDate)
@@ -51,7 +51,7 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)TaskCompletionStatus.Completed).ToListAsync();
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)CompletionStatus.Completed).ToListAsync();
             var model = data.Select(d => _mapper.Map<TaskViewModel>(d)).ToList();
             return View("Index", data);
         }
@@ -143,7 +143,7 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            task.CompletionStatus = (int)TaskCompletionStatus.Completed;
+            task.CompletionStatus = (int)CompletionStatus.Completed;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }

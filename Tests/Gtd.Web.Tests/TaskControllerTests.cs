@@ -59,7 +59,7 @@ namespace Gtd.Web.Tests.Controllers
             var model = result.Model as IEnumerable<TaskViewModel>;
             model.Should().NotBeNull();
             model.Count().Should().Be(2);
-            model.All(tm => tm.CompletionStatus != TaskCompletionStatus.Completed).Should().BeTrue();
+            model.All(tm => tm.CompletionStatus != CompletionStatus.Completed).Should().BeTrue();
             model.All(tm => tm.UserId == USER_ID).Should().BeTrue();
         }
 
@@ -174,7 +174,7 @@ namespace Gtd.Web.Tests.Controllers
             await db.SaveChangesAsync();
             var model = new TaskViewModel
             {
-                CompletionStatus = TaskCompletionStatus.InProgress,
+                CompletionStatus = CompletionStatus.InProgress,
                 Title = "my task",
                 DueDate = DateTime.Today.AddDays(5),                
             };
@@ -329,7 +329,7 @@ namespace Gtd.Web.Tests.Controllers
             var result = obj as RedirectToActionResult;
             result.Should().NotBeNull(because: "We expect a Redirect not a " + obj.GetType().Name);
             result.ActionName.Should().Be("Index");
-            tasks[2].CompletionStatus.Should().Be((int)TaskCompletionStatus.Completed);
+            tasks[2].CompletionStatus.Should().Be((int)CompletionStatus.Completed);
         }
 
         [Fact]
@@ -365,7 +365,7 @@ namespace Gtd.Web.Tests.Controllers
             var model = new TaskViewModel
             {
                 Id = tasks[3].Id,
-                CompletionStatus = TaskCompletionStatus.InProgress,
+                CompletionStatus = CompletionStatus.InProgress,
                 Description = "TEST DESCRIPTION",
                 Title = "New Title",
                 Urgent = true,
@@ -410,7 +410,7 @@ namespace Gtd.Web.Tests.Controllers
             var model = new TaskViewModel
             {
                 Id = tasks[2].Id,
-                CompletionStatus = TaskCompletionStatus.InProgress,
+                CompletionStatus = CompletionStatus.InProgress,
                 Description = "TEST DESCRIPTION",
                 Title = "New Title",
                 Urgent = true,

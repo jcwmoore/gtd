@@ -15,7 +15,7 @@ namespace Gtd.Web.Models
 
         public String Description { get; set; }
 
-        public TaskCompletionStatus CompletionStatus { get; set; }
+        public CompletionStatus CompletionStatus { get; set; }
 
         public bool Important { get; set; }
 
@@ -29,7 +29,7 @@ namespace Gtd.Web.Models
         public Microsoft.AspNetCore.Identity.IdentityUser User { get; set; }
     }
 
-    public enum TaskCompletionStatus
+    public enum CompletionStatus
     {
         [Display(Name = "Not Started")]
         NotStarted = 0,
