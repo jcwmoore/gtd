@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace Gtd.Web.Tests.Controllers
 {
@@ -29,7 +30,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(IndexOnlyIncludesMyUncompletedTasks));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -41,10 +43,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -54,7 +56,7 @@ namespace Gtd.Web.Tests.Controllers
             var obj = await controller.Index();
             var result = (obj) as ViewResult;
             result.Should().NotBeNull(because: "We expect a ViewResult not a " + obj.GetType().Name);
-            var model = result.Model as IEnumerable<TaskModel>;
+            var model = result.Model as IEnumerable<TaskViewModel>;
             model.Should().NotBeNull();
             model.Count().Should().Be(2);
             model.All(tm => tm.CompletionStatus != TaskCompletionStatus.Completed).Should().BeTrue();
@@ -67,7 +69,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DetailsReturnsNotFoundForNonexistantRecord));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -79,10 +82,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -101,7 +104,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DetailsReturnsNotFoundForNonUsersRecord));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -113,10 +117,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -134,7 +138,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(CreateTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -157,7 +162,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(CreateSaveTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -166,7 +172,7 @@ namespace Gtd.Web.Tests.Controllers
             user.Email = USER_NAME;
             await db.Users.AddAsync(user);
             await db.SaveChangesAsync();
-            var model = new TaskModel
+            var model = new TaskViewModel
             {
                 CompletionStatus = TaskCompletionStatus.InProgress,
                 Title = "my task",
@@ -182,7 +188,7 @@ namespace Gtd.Web.Tests.Controllers
             task.Created.Should().BeCloseTo(DateTime.UtcNow, 50);
             task.Updated.Should().BeCloseTo(DateTime.UtcNow, 50);
             task.User.Should().Be(user);
-            task.CompletionStatus.Should().Be(model.CompletionStatus);
+            task.CompletionStatus.Should().Be((int)model.CompletionStatus);
             task.Title.Should().Be(model.Title);
             task.DueDate.Should().Be(model.DueDate);
         }
@@ -193,7 +199,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DetailsReturnsNotFoundForNonUsersRecord));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -205,10 +212,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -226,7 +233,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(EditSuccessTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -238,10 +246,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -259,7 +267,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(CompleteNonExistingTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -271,10 +280,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -293,7 +302,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(CompleteSuccessTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -305,10 +315,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -319,7 +329,7 @@ namespace Gtd.Web.Tests.Controllers
             var result = obj as RedirectToActionResult;
             result.Should().NotBeNull(because: "We expect a Redirect not a " + obj.GetType().Name);
             result.ActionName.Should().Be("Index");
-            tasks[2].CompletionStatus.Should().Be(TaskCompletionStatus.Completed);
+            tasks[2].CompletionStatus.Should().Be((int)TaskCompletionStatus.Completed);
         }
 
         [Fact]
@@ -328,7 +338,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(CompleteNonExistingTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -340,10 +351,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -351,7 +362,7 @@ namespace Gtd.Web.Tests.Controllers
 
             //Then
             await Task.Delay(500);
-            var model = new TaskModel
+            var model = new TaskViewModel
             {
                 Id = tasks[3].Id,
                 CompletionStatus = TaskCompletionStatus.InProgress,
@@ -372,7 +383,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(EditSaveSuccessTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -384,10 +396,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -395,7 +407,7 @@ namespace Gtd.Web.Tests.Controllers
 
             //Then
             await Task.Delay(500);
-            var model = new TaskModel
+            var model = new TaskViewModel
             {
                 Id = tasks[2].Id,
                 CompletionStatus = TaskCompletionStatus.InProgress,
@@ -408,7 +420,7 @@ namespace Gtd.Web.Tests.Controllers
             var result = obj as RedirectToActionResult;
             result.Should().NotBeNull(because: "We expect a Redirect not a " + obj.GetType().Name);
             result.ActionName.Should().Be("Index");
-            tasks[2].CompletionStatus.Should().Be(model.CompletionStatus);
+            tasks[2].CompletionStatus.Should().Be((int)model.CompletionStatus);
             tasks[2].Title.Should().Be(model.Title);
             tasks[2].Description.Should().Be(model.Description);
             tasks[2].Urgent.Should().Be(model.Important);
@@ -423,7 +435,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DeleteNonExistingTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -435,10 +448,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -457,7 +470,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DeleteSuccessTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -469,10 +483,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -490,7 +504,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DeleteConfirmedNonExistingTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -502,10 +517,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -524,7 +539,8 @@ namespace Gtd.Web.Tests.Controllers
             //Given
             var db = GenerateInMemDbContext(nameof(DeleteConfirmedSaveSuccessTest));
             var cctx = GenerateFakeControllerContext();
-            var controller = new TaskController(db);
+            var mapper = GetMapper();
+            var controller = new TaskController(db, mapper);
 
             //When
             controller.ControllerContext = cctx;
@@ -536,10 +552,10 @@ namespace Gtd.Web.Tests.Controllers
             other.Email = "someone else";
             var tasks = new []
             {
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.Completed},
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.InProgress },
-                new TaskModel { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = TaskCompletionStatus.NotStarted },
-                new TaskModel { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = TaskCompletionStatus.NotStarted },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 100 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 50 },
+                new TaskDto { Id = Guid.NewGuid(), User = user, UserId = USER_ID, CompletionStatus = 0 },
+                new TaskDto { Id = Guid.NewGuid(), User = other, UserId = other.Id, CompletionStatus = 0 },
             };
             await db.Users.AddAsync(user);
             await db.Tasks.AddRangeAsync(tasks);
@@ -577,6 +593,11 @@ namespace Gtd.Web.Tests.Controllers
             Mock.Get(cp).Setup(m => m.Identity).Returns(iden);
             Mock.Get(hctx).Setup(m => m.User).Returns(cp);            
             return ctx;
+        }
+
+        private IMapper GetMapper()
+        {
+            return new MapperConfiguration(AutoMapperConfiguration.Configuration).CreateMapper();
         }
     }
 }

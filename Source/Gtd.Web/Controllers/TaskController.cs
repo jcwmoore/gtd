@@ -1,3 +1,4 @@
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +16,12 @@ namespace Gtd.Web.Controllers
     public class TaskController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMapper _mapper;
 
-        public TaskController(ApplicationDbContext context)
+        public TaskController(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -30,12 +33,13 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != TaskCompletionStatus.Completed).ToListAsync();
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)TaskCompletionStatus.Completed).ToListAsync();
             data = data.OrderByDescending(t => t.Urgent)
                        .ThenByDescending(t => t.Important)
                        .ThenBy(t => t.DueDate)
                        .ToList();
-            return View(data);
+            var model = data.Select(d => _mapper.Map<TaskViewModel>(d)).ToList();
+            return View(model);
         }
 
         [HttpGet]
@@ -47,8 +51,8 @@ namespace Gtd.Web.Controllers
             {
                 return NotFound();
             }
-            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != TaskCompletionStatus.Completed).ToListAsync();
-            data = data.OrderBy(t => t.DueDate).ToList();
+            var data = await _context.Tasks.Include(t => t.User).Where(t => t.UserId == user.Id && t.CompletionStatus != (int)TaskCompletionStatus.Completed).ToListAsync();
+            var model = data.Select(d => _mapper.Map<TaskViewModel>(d)).ToList();
             return View("Index", data);
         }
 
@@ -60,15 +64,15 @@ namespace Gtd.Web.Controllers
                 return NotFound();
             }
 
-            var taskModel = await _context.Tasks
+            var task = await _context.Tasks
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (taskModel == null || taskModel.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
+            if (task == null || task.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
             {
                 return NotFound();
             }
-
-            return View(taskModel);
+            var model = _mapper.Map<TaskViewModel>(task);
+            return View(model);
         }
 
         // GET: TaskModel/Create
@@ -84,7 +88,7 @@ namespace Gtd.Web.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,CompletionStatus,Important,Urgent,DueDate")] TaskModel taskModel)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,CompletionStatus,Important,Urgent,DueDate")] TaskViewModel taskModel)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == this.ControllerContext.HttpContext.User.Identity.Name);
             if (ModelState.IsValid)
@@ -93,7 +97,8 @@ namespace Gtd.Web.Controllers
                 taskModel.Created = DateTime.UtcNow;
                 taskModel.Updated = DateTime.UtcNow;
                 taskModel.UserId = user.Id;
-                _context.Add(taskModel);
+                var task = _mapper.Map<TaskDto>(taskModel);
+                _context.Add(task);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -109,13 +114,14 @@ namespace Gtd.Web.Controllers
                 return NotFound();
             }
 
-            var taskModel = await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
-            if (taskModel == null || taskModel.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
+            var task = await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
+            if (task == null || task.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", taskModel.UserId);
-            return View(taskModel);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", task.UserId);
+            var model = _mapper.Map<TaskViewModel>(task);
+            return View(model);
         }
 
 
@@ -128,16 +134,16 @@ namespace Gtd.Web.Controllers
                 return NotFound();
             }
 
-            var taskModel = await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
-            if (taskModel == null)
+            var task = await _context.Tasks.Include(t => t.User).FirstOrDefaultAsync(t => t.Id == id);
+            if (task == null)
             {
                 return NotFound();
             }
-            if(taskModel.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
+            if(task.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
             {
                 return NotFound();
             }
-            taskModel.CompletionStatus = TaskCompletionStatus.Completed;
+            task.CompletionStatus = (int)TaskCompletionStatus.Completed;
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -147,7 +153,7 @@ namespace Gtd.Web.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Created,Updated,Title,Description,CompletionStatus,Importance,Urgency,DueDate,UserId")] TaskModel taskModel)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Created,Updated,Title,Description,CompletionStatus,Importance,Urgency,DueDate,UserId")] TaskViewModel taskModel)
         {
             if (id != taskModel.Id)
             {
@@ -167,7 +173,7 @@ namespace Gtd.Web.Controllers
                 existing.Description = taskModel.Description;
                 existing.Important = taskModel.Important;
                 existing.Urgent = taskModel.Urgent;
-                existing.CompletionStatus = taskModel.CompletionStatus;
+                existing.CompletionStatus = (int)taskModel.CompletionStatus;
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -183,14 +189,14 @@ namespace Gtd.Web.Controllers
                 return NotFound();
             }
 
-            var taskModel = await _context.Tasks
+            var task = await _context.Tasks
                 .FirstOrDefaultAsync(m => m.Id == id && m.User.Email == this.ControllerContext.HttpContext.User.Identity.Name);
-            if (taskModel == null)
+            if (task == null)
             {
                 return NotFound();
             }
-
-            return View(taskModel);
+            var model = _mapper.Map<TaskViewModel>(task);
+            return View(model);
         }
 
         // POST: TaskModel/Delete/5

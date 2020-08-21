@@ -18,14 +18,14 @@ namespace Gtd.Web.Data
             base.OnModelCreating(builder);
 
             // Tasks
-            builder.Entity<Models.TaskModel>().ToTable("Tasks");
-            builder.Entity<Models.TaskModel>().HasKey(t => t.Id);
-            builder.Entity<Models.TaskModel>().Property(t => t.Created).IsRequired();
-            builder.Entity<Models.TaskModel>().Property(t => t.Updated).IsRequired();
-            builder.Entity<Models.TaskModel>().Property(t => t.Title).IsRequired();            
-            builder.Entity<Models.TaskModel>().Property(t => t.UserId).IsRequired();
+            builder.Entity<TaskDto>().ToTable("Tasks");
+            builder.Entity<TaskDto>().HasKey(t => t.Id);
+            builder.Entity<TaskDto>().Property(t => t.Created).IsRequired();
+            builder.Entity<TaskDto>().Property(t => t.Updated).IsRequired();
+            builder.Entity<TaskDto>().Property(t => t.Title).IsRequired();            
+            builder.Entity<TaskDto>().Property(t => t.UserId).IsRequired();
         }
 
-        public DbSet<Models.TaskModel> Tasks { get; set; }
+        public DbSet<TaskDto> Tasks { get; set; }
     }
 }
