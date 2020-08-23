@@ -1,14 +1,44 @@
-@model IEnumerable<Gtd.Web.Models.TaskViewModel>
+@model Gtd.Web.Models.ProjectDetailsViewModel
 
 @{
-    ViewData["Title"] = "Tasks";
+    ViewData["Title"] = Model.Title;
 }
+<h1>Project Details</h1>
 
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.CompletionStatus)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.CompletionStatus)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Updated)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Updated)
+        </dd>
+    </dl>
+</div>
 <h1>Tasks</h1>
 
 <div class="card">
     <a href="#" id="quick-create-toggle" data-toggle="dropdown" arai-expanded="false">Create new</a>
-    <form class="dropdown-menu p-4" asp-action="Create" aria-labelledby="quick-create-toggle">
+    <form class="dropdown-menu p-4" asp-action="CreateTask" asp-route-id="@Model.Id" aria-labelledby="quick-create-toggle">
         <div class="form-group">
             <label for="Title">Title</label>
             <input type="text" class="form-control" name="Title" placeholder="..." required="required" />
@@ -27,10 +57,10 @@
         </div>
         <input type="hidden" name="CompletionStatus" value="0" />
         <input type="hidden" name="DueDate" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="ProjectId" value="@Model.Id" />
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>
-
 <br />
 <div class="card table-responsive"  style="min-height: 300px;">
     <table class="table table-striped">
@@ -47,14 +77,14 @@
             
         </thead>
         <tbody>
-    @foreach (var item in Model) {
+    @foreach (var item in Model.Tasks) {
             <tr>
                 <td>
                     <a href="#" id="menu-toggle-@item.Id" class="dropdown-toggle" data-boundary="viewport" data-toggle="dropdown" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
                     </a>
                     <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
-                        <a asp-action="Complete" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
+                        <a asp-action="Complete" asp-controller="Task" asp-route-id="@item.Id" asp-route-redirect="@String.Concat("/Project/Details/", Model.Id)" class="dropdown-item">Complete</a>
                         <div class="dropdown-divider"></div>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a>
                         <div class="dropdown-divider"></div>
@@ -77,11 +107,8 @@
         </tbody>
     </table>
 </div>
-
-@section Scripts{
-    <script type="text/javascript">
-        $.ready(function() {
-
-        });
-    </script>
-}
+<br />
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

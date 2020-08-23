@@ -24,8 +24,18 @@ namespace Gtd.Web.Data
             builder.Entity<TaskDto>().Property(t => t.Updated).IsRequired();
             builder.Entity<TaskDto>().Property(t => t.Title).IsRequired();            
             builder.Entity<TaskDto>().Property(t => t.UserId).IsRequired();
+
+            // Projects
+            builder.Entity<ProjectDto>().ToTable("Projects");
+            builder.Entity<ProjectDto>().HasKey(p => p.Id);
+            builder.Entity<ProjectDto>().HasMany(p => p.Tasks).WithOne(t => t.Project);
+            builder.Entity<ProjectDto>().Property(p => p.Created).IsRequired();
+            builder.Entity<ProjectDto>().Property(p => p.Updated).IsRequired();
+            builder.Entity<ProjectDto>().Property(p => p.Title).IsRequired();     
         }
 
         public DbSet<TaskDto> Tasks { get; set; }
+
+        public DbSet<ProjectDto> Projects { get; set; }
     }
 }

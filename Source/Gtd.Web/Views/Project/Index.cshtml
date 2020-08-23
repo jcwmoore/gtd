@@ -1,10 +1,10 @@
-@model IEnumerable<Gtd.Web.Models.TaskViewModel>
+@model IEnumerable<Gtd.Web.Models.ProjectViewModel>
 
 @{
-    ViewData["Title"] = "Tasks";
+    ViewData["Title"] = "Projects";
 }
 
-<h1>Tasks</h1>
+<h1>Projects</h1>
 
 <div class="card">
     <a href="#" id="quick-create-toggle" data-toggle="dropdown" arai-expanded="false">Create new</a>
@@ -13,35 +13,22 @@
             <label for="Title">Title</label>
             <input type="text" class="form-control" name="Title" placeholder="..." required="required" />
         </div>
-        <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" name="Important" value="true"/>
-            <label class="form-check-label" for="Important">
-            Important
-            </label>
-        </div>
-        <div class="group form-check">
-            <input type="checkbox" class="form-check-input" name="Urgent" value="true"/>
-            <label class="form-check-label" for="Urgent">
-            Urgent
-            </label>
-        </div>
         <input type="hidden" name="CompletionStatus" value="0" />
-        <input type="hidden" name="DueDate" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" />
         <button type="submit" class="btn btn-primary">Save</button>
     </form>
 </div>
 
 <br />
-<div class="card table-responsive"  style="min-height: 300px;">
-    <table class="table table-striped">
+<div class="card table-responsive"  >
+    <table class="table table-striped" data-boundary="window" style="min-height: 300px;">
         <thead>
             <tr>
                 <th></th>
                 <th>
-                    <a asp-action="Index">Title</a>
+                    <a asp-action="Index">Project</a>
                 </th>
                 <th>
-                    <a asp-action="DueDate">DueDate</a>
+                    <a asp-action="DueDate">Tasks</a>
                 </th>
             </tr>
             
@@ -50,7 +37,7 @@
     @foreach (var item in Model) {
             <tr>
                 <td>
-                    <a href="#" id="menu-toggle-@item.Id" class="dropdown-toggle" data-boundary="viewport" data-toggle="dropdown" aria-expanded="false">
+                    <a href="#" id="menu-toggle-@item.Id" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
                     </a>
                     <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
@@ -64,24 +51,14 @@
                     </div>
                 </td>
                 <td>
-                    @if(item.Urgent) { <span>❗</span>  } else { <span>&#160;&#160;</span> } 
-                    @if(item.Important) { <span>🌟</span>  } else { <span>&#160;&#160;&#160;</span> }
                     @Html.DisplayFor(modelItem => item.Title)
                     
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DueDate)
+                    @Html.DisplayFor(modelItem => item.OutstandingTasks)
                 </td>
             </tr>
     }
         </tbody>
     </table>
 </div>
-
-@section Scripts{
-    <script type="text/javascript">
-        $.ready(function() {
-
-        });
-    </script>
-}

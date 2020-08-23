@@ -17,13 +17,10 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 
-namespace Gtd.Web.Tests.Controllers
+namespace Gtd.Web.Controllers.Tests
 {
-    public class TaskControllerTests
+    public class TaskControllerTests : ControllerTestBase
     {
-        private static readonly string USER_NAME = "test user";
-        private static readonly string USER_ID = Guid.NewGuid().ToString();
-
         [Fact]
         public async Task IndexOnlyIncludesMyUncompletedTasks()
         {
@@ -290,7 +287,7 @@ namespace Gtd.Web.Tests.Controllers
             await db.SaveChangesAsync();
 
             //Then
-            var obj = await controller.Complete(tasks[3].Id);
+            var obj = await controller.Complete(tasks[3].Id, null);
             var result = obj as NotFoundResult;
             result.Should().NotBeNull(because: "We expect a Redirect not a " + obj.GetType().Name);
             
@@ -325,7 +322,7 @@ namespace Gtd.Web.Tests.Controllers
             await db.SaveChangesAsync();
 
             //Then
-            var obj = await controller.Complete(tasks[2].Id);
+            var obj = await controller.Complete(tasks[2].Id, null);
             var result = obj as RedirectToActionResult;
             result.Should().NotBeNull(because: "We expect a Redirect not a " + obj.GetType().Name);
             result.ActionName.Should().Be("Index");
@@ -568,36 +565,6 @@ namespace Gtd.Web.Tests.Controllers
             result.ActionName.Should().Be("Index");
             var missing = await db.Tasks.FirstOrDefaultAsync(t => t.Id == tasks[2].Id);
             missing.Should().BeNull();
-        }
-
-        private ApplicationDbContext GenerateInMemDbContext(string method)
-        {
-            DbContextOptions<ApplicationDbContext> options;
-            var builder = new DbContextOptionsBuilder<ApplicationDbContext>();
-            builder.UseInMemoryDatabase(string.Format("{0}-{1}", nameof(TaskControllerTests), method));
-            options = builder.Options;
-            var dataContext = new ApplicationDbContext(options);
-            dataContext.Database.EnsureDeleted();
-            dataContext.Database.EnsureCreated();
-            return dataContext;
-        }
-
-        private ControllerContext GenerateFakeControllerContext()
-        {
-            var ctx = new ControllerContext();
-            var hctx = Mock.Of<HttpContext>();
-            ctx.HttpContext = hctx;
-            var cp = Mock.Of<ClaimsPrincipal>();
-            var iden = Mock.Of<IIdentity>();
-            Mock.Get(iden).Setup(m => m.Name).Returns(USER_NAME);
-            Mock.Get(cp).Setup(m => m.Identity).Returns(iden);
-            Mock.Get(hctx).Setup(m => m.User).Returns(cp);            
-            return ctx;
-        }
-
-        private IMapper GetMapper()
-        {
-            return new MapperConfiguration(AutoMapperConfiguration.Configuration).CreateMapper();
         }
     }
 }

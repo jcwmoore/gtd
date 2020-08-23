@@ -49,9 +49,17 @@
                         <li class="nav-item menu-items">
                             <a class="nav-link" asp-area="" asp-controller="Task" asp-action="Index">
                             <span class="menu-icon">
-                                <i class="mdi mdi-check-all"></i>
+                                <i class="mdi mdi-check-bold"></i>
                             </span>
                             <span class="menu-title">Tasks</span>
+                            </a>
+                        </li>
+                        <li class="nav-item menu-items">
+                            <a class="nav-link" asp-area="" asp-controller="Project" asp-action="Index">
+                            <span class="menu-icon">
+                                <i class="mdi mdi-check-all"></i>
+                            </span>
+                            <span class="menu-title">Projects</span>
                             </a>
                         </li>
                         <li class="nav-item menu-items">
@@ -123,7 +131,7 @@
                 </nav>
                 <!-- partial -->
                 <div class="main-panel">
-                <div class="content-wrapper">
+                <div class="content-wrapper" data-boundary="viewport">
                     @RenderBody()
                 </div>
                 <!-- content-wrapper ends -->

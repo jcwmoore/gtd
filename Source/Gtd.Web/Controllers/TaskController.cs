@@ -126,8 +126,7 @@ namespace Gtd.Web.Controllers
 
 
         [HttpGet]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult>Complete(Guid? id)
+        public async Task<IActionResult>Complete(Guid? id, string redirect)
         {
             if (id == null)
             {
@@ -145,7 +144,14 @@ namespace Gtd.Web.Controllers
             }
             task.CompletionStatus = (int)CompletionStatus.Completed;
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            if(string.IsNullOrEmpty(redirect))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                return Redirect(redirect);
+            }
         }
 
         // POST: TaskModel/Edit/5
