@@ -40,15 +40,13 @@
                 <th>
                     <a asp-action="Index">Title</a>
                 </th>
-                <th>
-                    <a asp-action="DueDate">DueDate</a>
-                </th>
+                <th>Due Date</th>
             </tr>
             
         </thead>
-        <tbody>
-    @foreach (var item in Model) {
-            <tr>
+        <tbody id="sortable">
+    @foreach (var item in Model.OrderBy(i => i.Sort)) {
+            <tr data-sort-index="@item.Sort" data-id="@item.Id">
                 <td>
                     <a href="#" id="menu-toggle-@item.Id" class="dropdown-toggle" data-boundary="viewport" data-toggle="dropdown" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
@@ -80,8 +78,37 @@
 
 @section Scripts{
     <script type="text/javascript">
-        $.ready(function() {
+        $('#sortable').sortable({
+            deactivate: function(event, ui) {
+                var id = ui.item.data('id');
+                var prevIndex = Number.MIN_VALUE, nextIndex = Number.MAX_VALUE, newIndex = 0, topOfList = false, bottomOfList = false;
+                if(ui.item.prev().is('tr')){
+                    prevIndex = parseFloat(ui.item.prev().attr('data-sort-index'));
+                } else {
+                   topOfList = true;
+                }
+                if(ui.item.next().is('tr')){
+                    nextIndex = parseFloat(ui.item.next().attr('data-sort-index'));
+                } else {
+                    bottomOfList = true;
+                }
+                if(topOfList && bottomOfList){
+                    newIndex = 0;
+                } else if (topOfList){
+                    newIndex = nextIndex - 1;
+                } else if (bottomOfList) {
+                    newIndex = prevIndex + 1;
+                } else{
+                    newIndex = (prevIndex + nextIndex) / 2.0;
+                }
 
+                //ui.item.find('#sort-column').html(newIndex);
+                ui.item.attr('data-sort-index', newIndex);
+                $.ajax('/Task/SetSort', {
+                    data: 'sort=' + newIndex + '&id=' + id,
+                    method: 'PATCH'
+                });
+            }
         });
     </script>
 }

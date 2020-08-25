@@ -56,6 +56,51 @@ namespace Gtd.Web.Controllers
             return View("Index", data);
         }
 
+        //TODO: Implement a proper patch
+        public async Task<IActionResult> SetSort(Guid id, double sort)
+        {
+            // if (id != model.Id)
+            // {
+            //     return NotFound();
+            // }
+            var task = await _context.Tasks
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (task == null || task.User.Email != this.ControllerContext.HttpContext.User.Identity.Name)
+            {
+                return NotFound();
+            }
+            task.Sort = sort;
+
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("Title"))
+            // {
+            //     task.Title = model.Title;
+            // }
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("Description"))
+            // {
+            //     task.Description = model.Description;
+            // }
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("Important"))
+            // {
+            //     task.Important = model.Important;
+            // }
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("Urgent"))
+            // {
+            //     task.Urgent = model.Urgent;
+            // }
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("DueDate"))
+            // {
+            //     task.DueDate = model.DueDate;
+            // }
+            // if(ControllerContext.HttpContext.Request.Form.ContainsKey("Sort"))
+            // {
+            //     task.Sort = model.Sort;
+            // }
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         // GET: TaskModel/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
@@ -97,6 +142,15 @@ namespace Gtd.Web.Controllers
                 taskModel.Created = DateTime.UtcNow;
                 taskModel.Updated = DateTime.UtcNow;
                 taskModel.UserId = user.Id;
+                var sort = await _context.Tasks.Where(t => t.UserId == user.Id && t.CompletionStatus == (int)CompletionStatus.Completed).Select(t => t.Sort).ToListAsync();
+                if(sort.Any())
+                {
+                    taskModel.Sort = sort.Max() + 1;
+                }
+                else
+                {
+                    taskModel.Sort = 0;
+                }
                 var task = _mapper.Map<TaskDto>(taskModel);
                 _context.Add(task);
                 await _context.SaveChangesAsync();

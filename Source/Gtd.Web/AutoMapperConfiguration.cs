@@ -7,6 +7,10 @@ namespace Gtd.Web
 {
     public static class AutoMapperConfiguration
     {
+
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        private static Random random = new Random();
+
         public static void Configuration(IMapperConfigurationExpression cfg)
         {
             cfg.CreateMap<Models.TaskViewModel, Data.TaskDto>().ForMember(d => d.CompletionStatus, op => op.MapFrom(s => (int)s.CompletionStatus));

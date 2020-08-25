@@ -29,6 +29,7 @@ namespace Gtd.Web.Data
         public string UserId { get; set; }
 
         public Microsoft.AspNetCore.Identity.IdentityUser User { get; set; }
-    
+
+        public double Sort { get; set; }
     }
 }

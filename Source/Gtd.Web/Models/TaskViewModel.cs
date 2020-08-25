@@ -26,6 +26,8 @@ namespace Gtd.Web.Models
 
         public string UserId { get; set; }
 
+        public double Sort { get; set; }
+
         public Microsoft.AspNetCore.Identity.IdentityUser User { get; set; }
     }
 
