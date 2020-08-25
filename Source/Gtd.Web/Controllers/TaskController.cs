@@ -142,7 +142,7 @@ namespace Gtd.Web.Controllers
                 taskModel.Created = DateTime.UtcNow;
                 taskModel.Updated = DateTime.UtcNow;
                 taskModel.UserId = user.Id;
-                var sort = await _context.Tasks.Where(t => t.UserId == user.Id && t.CompletionStatus == (int)CompletionStatus.Completed).Select(t => t.Sort).ToListAsync();
+                var sort = await _context.Tasks.Where(t => t.UserId == user.Id && t.CompletionStatus != (int)CompletionStatus.Completed).Select(t => t.Sort).ToListAsync();
                 if(sort.Any())
                 {
                     taskModel.Sort = sort.Max() + 1;
