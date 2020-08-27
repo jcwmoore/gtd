@@ -53,13 +53,7 @@
                     </a>
                     <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
                         <a asp-action="Complete" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
-                        <div class="dropdown-divider"></div>
-                        <span class="d-block d-xl-none dropdown-item">
-                            <a href="#" ><i class="mdi mdi-arrow-up-bold"></i></a>
-                            <i class="mdi mdi-dots-vertical"></i>
-                            <a href="#" ><i class="mdi mdi-arrow-down-bold"></i></a>
-                        </span>
-                        <div class="dropdown-divider d-block d-xl-none"></div>
+                        <div class="dropdown-divider"></div>                        
                         <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a>
                         <div class="dropdown-divider"></div>
                         <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Details</a>
