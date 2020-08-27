@@ -116,16 +116,17 @@
 @section Scripts{
     <script type="text/javascript">
         $('#sortable').sortable({
-            deactivate: function(event, ui) {
-                var id = ui.item.data('id');
+            onEnd: function(evt) {
+                var ui = $(evt.item);
+                var id = ui.data('id');
                 var prevIndex = Number.MIN_VALUE, nextIndex = Number.MAX_VALUE, newIndex = 0, topOfList = false, bottomOfList = false;
-                if(ui.item.prev().is('tr')){
-                    prevIndex = parseFloat(ui.item.prev().attr('data-sort-index'));
+                if(ui.prev().is('tr')){
+                    prevIndex = parseFloat(ui.prev().attr('data-sort-index'));
                 } else {
                    topOfList = true;
                 }
-                if(ui.item.next().is('tr')){
-                    nextIndex = parseFloat(ui.item.next().attr('data-sort-index'));
+                if(ui.next().is('tr')){
+                    nextIndex = parseFloat(ui.next().attr('data-sort-index'));
                 } else {
                     bottomOfList = true;
                 }
@@ -140,7 +141,7 @@
                 }
 
                 //ui.item.find('#sort-column').html(newIndex);
-                ui.item.attr('data-sort-index', newIndex);
+                ui.attr('data-sort-index', newIndex);
                 $.ajax('/Task/SetSort', {
                     data: 'sort=' + newIndex + '&id=' + id,
                     method: 'PATCH'

@@ -47,13 +47,19 @@
         <tbody id="sortable">
     @foreach (var item in Model.OrderBy(i => i.Sort)) {
             <tr data-sort-index="@item.Sort" data-id="@item.Id">
-                <td>
+                <td class="drag-row">
                     <a href="#" id="menu-toggle-@item.Id" class="dropdown-toggle" data-boundary="viewport" data-toggle="dropdown" aria-expanded="false">
                         <i class="mdi mdi-dots-vertical"></i>
                     </a>
                     <div id="menu-@item.Id" class="dropdown-menu sidebar-dropdown preview-list" aria-labelledby="menu-toggle-@item.Id">
                         <a asp-action="Complete" asp-route-id="@item.Id" class="dropdown-item">Complete</a>
                         <div class="dropdown-divider"></div>
+                        <span class="d-block d-xl-none dropdown-item">
+                            <a href="#" ><i class="mdi mdi-arrow-up-bold"></i></a>
+                            <i class="mdi mdi-dots-vertical"></i>
+                            <a href="#" ><i class="mdi mdi-arrow-down-bold"></i></a>
+                        </span>
+                        <div class="dropdown-divider d-block d-xl-none"></div>
                         <a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a>
                         <div class="dropdown-divider"></div>
                         <a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">Details</a>
@@ -79,16 +85,19 @@
 @section Scripts{
     <script type="text/javascript">
         $('#sortable').sortable({
-            deactivate: function(event, ui) {
-                var id = ui.item.data('id');
+            animation: 150,
+            delayOnTouchOnly: true,
+            onEnd: function(evt) {
+                var ui = $(evt.item);
+                var id = ui.data('id');
                 var prevIndex = Number.MIN_VALUE, nextIndex = Number.MAX_VALUE, newIndex = 0, topOfList = false, bottomOfList = false;
-                if(ui.item.prev().is('tr')){
-                    prevIndex = parseFloat(ui.item.prev().attr('data-sort-index'));
+                if(ui.prev().is('tr')){
+                    prevIndex = parseFloat(ui.prev().attr('data-sort-index'));
                 } else {
                    topOfList = true;
                 }
-                if(ui.item.next().is('tr')){
-                    nextIndex = parseFloat(ui.item.next().attr('data-sort-index'));
+                if(ui.next().is('tr')){
+                    nextIndex = parseFloat(ui.next().attr('data-sort-index'));
                 } else {
                     bottomOfList = true;
                 }
@@ -103,7 +112,7 @@
                 }
 
                 //ui.item.find('#sort-column').html(newIndex);
-                ui.item.attr('data-sort-index', newIndex);
+                ui.attr('data-sort-index', newIndex);
                 $.ajax('/Task/SetSort', {
                     data: 'sort=' + newIndex + '&id=' + id,
                     method: 'PATCH'
